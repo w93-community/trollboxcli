@@ -44,17 +44,39 @@ const wrap = async function(f) {
 
 const userToString = user => `<span style="color: ${user.color || 'white'}">${user.nick || 'anonymous'}</span>`
 
-const handleLine = (socket, ln, exit) => {
-    if (ln.startsWith('/exit')) exit()
+const handleLine = (socket, user, ln, exit, cfg) => {
+    if (ln.startsWith('/')) {
+        switch (ln.split(' ')[0].substr(1).toLowerCase()) {
+            case 'exit':
+                exit()
+                break
+            case 'nick':
+                user.nick = ln.split(' ').slice(1).join(' ')
+                break
+            case 'color':
+                user.color = ln.split(' ').slice(1).join(' ')
+                break
+            case 'img':
+                if (ln.split(' ')[1] == 'on') cfg.img = true
+                else cfg.img = false
+                break
+            default:
+                socket.emit('message', ln)
+                break
+        }
+    }
     else socket.emit('message', ln)
 }
 
+const isImgUrl = url => (/\.(gif|jpg|jpeg|tiff|png|webp)$/i).test(url.pathname)
+
 const app =  cli => {
+    var cfg = { img: false }
     var exit;
     var p = new Promise(res => exit = res)
-    const socket = io('//www.windows93.net:8081')
+    const socket = io(cli.arg.arguments[0] || '//www.windows93.net:8081')
     const currentUser = new User(localStorage['.config/trollbox/nick'], localStorage['.config/trollbox/color'])
-    cli.online = ln => handleLine(socket, ln, exit)
+    cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg)
     socket.on('user joined', user => {
         cli.log(`${userToString(user)} has entered teh trollbox`)
     })
@@ -62,7 +84,24 @@ const app =  cli => {
         cli.log(`${userToString(old)} is now known as ${userToString(nyw)}`)
     })
     socket.on('message', msg => {
-        cli.log(`${userToString(msg)}: ${msg.msg}`)
+        if (!cfg.img) cli.log(`${userToString(msg)}: ${msg.msg}`)
+        else {
+            let logs = [`${userToString(msg)}: `]
+            let logsCtr = 0
+            for (let betweenSpace of msg.msg.split(' ')) {
+                try {
+                    let url = new URL(betweenSpace)
+                    if (isImgUrl(url)) {
+                        logs.push(`<img src="${url}" style="max-width: 100%;">`)
+                        logsCtr += 2
+                        logs[logsCtr] = ''
+                    } else logs[logsCtr] += betweenSpace + ' '
+                } catch (ex) {
+                    logs[logsCtr] += betweenSpace + ' '
+                }
+            }
+            logs.forEach(e => cli.log(e))
+        }
     })
     autorun(() => cli.prompt = `${userToString(currentUser)}&gt;&nbsp;`)
     autorun(() => socket.emit('user joined', currentUser.nick, currentUser.color))
