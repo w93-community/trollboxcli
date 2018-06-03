@@ -56,10 +56,10 @@ const handleLine = (socket, user, ln, exit, cfg) => {
                 exit()
                 break
             case 'nick':
-                user.nick = ln.split(' ').slice(1).join(' ')
+                $store.set('.config/trollbox/nick', user.nick = ln.split(' ').slice(1).join(' '))
                 break
             case 'color':
-                user.color = ln.split(' ').slice(1).join(' ')
+                $store.set('.config/trollbox/color', user.color = ln.split(' ').slice(1).join(' '))
                 break
             case 'img':
                 if (ln.split(' ')[1] == 'on') cfg.img = true
@@ -81,10 +81,13 @@ const app =  cli => {
     var p = new Promise(res => exit = res)
     cli.onexit = exit
     const socket = io(cli.arg.arguments[0] || '//www.windows93.net:8081')
-    const currentUser = new User(localStorage['.config/trollbox/nick'], localStorage['.config/trollbox/color'])
+    const currentUser = new User($store.get('.config/trollbox/nick'), $store.get('.config/trollbox/color'))
     cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg)
     socket.on('user joined', user => {
         cli.log(`${userToString(user)} has entered teh trollbox`)
+    })
+    socket.on('user left', user => {
+        cli.log(`${userToString(user)} has left teh trollbox`)
     })
     socket.on('user change nick', (old, nyw) => {
         cli.log(`${userToString(old)} is now known as ${userToString(nyw)}`)
