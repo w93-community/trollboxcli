@@ -19,26 +19,31 @@ decorate(User, {
 const wrap = async function(f) {
     var originalPrompt = this.cli.prompt.innerHTML
     var originalOnenter = this.cli.onenter
+    var originalOndestroy = this.cli.ondestroy
     try  {
-      this.cli.prompt.innerHTML = ''
-      this.cli.onenter = l => false
-      var cli = this.cli
-      var lastLog = $log('')
-      await f({
-          log: (...args) => {
-              var newLog = $log(...args)
-              lastLog.parentElement.insertBefore(newLog, lastLog.nextSibling)
-              lastLog = newLog
+        this.cli.prompt.innerHTML = ''
+        this.cli.onenter = l => false
+        var cli = this.cli
+        var lastLog = $log('')
+        await f({
+            log: (...args) => {
+                var newLog = $log(...args)
+                lastLog.parentElement.insertBefore(newLog, lastLog.nextSibling)
+                lastLog = newLog
             },
             set online(f) {
-            cli.onenter = l => { f(l); return false }
-          },
-          set prompt(p) { cli.prompt.innerHTML = p },
+                cli.onenter = l => { f(l); return false }
+            },
+            set onexit(f) {
+                cli.ondestroy = () => f()
+            },
+            set prompt(p) { cli.prompt.innerHTML = p },
             arg: this.arg
         })
     } finally {
-      this.cli.prompt.innerHTML = originalPrompt
-      this.cli.onenter = originalOnenter
+        this.cli.prompt.innerHTML = originalPrompt
+        this.cli.onenter = originalOnenter
+        this.cli.ondestroy = originalOndestroy
     }
 }
 
@@ -74,6 +79,7 @@ const app =  cli => {
     var cfg = { img: false }
     var exit;
     var p = new Promise(res => exit = res)
+    cli.onexit = exit
     const socket = io(cli.arg.arguments[0] || '//www.windows93.net:8081')
     const currentUser = new User(localStorage['.config/trollbox/nick'], localStorage['.config/trollbox/color'])
     cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg)
