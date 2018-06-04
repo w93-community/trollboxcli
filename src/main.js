@@ -110,7 +110,7 @@ const app =  cli => {
         else {
             let logs = [`${userToString(msg)}: `]
             let logsCtr = 0
-            for (let betweenSpace of msg.msg.split(' ')) {
+            msg.msg.split(' ').forEach(betweenSpace => {
                 try {
                     let url = new URL(betweenSpace)
                     if (isImgUrl(url)) {
@@ -121,7 +121,7 @@ const app =  cli => {
                 } catch (ex) {
                     logs[logsCtr] += betweenSpace + ' '
                 }
-            }
+            })
             logs.forEach(e => cli.log(e))
         }
     })

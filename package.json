@@ -10,9 +10,15 @@
   "devDependencies": {
     "browserify": "^16.2.2",
     "gulp": "^3.9.1",
+    "gulp-buble": "^0.9.0",
+    "gulp-minify": "^2.1.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "gulplog": "^1.0.0",
+    "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
   "scripts": {
-    "build": "gulp"
+    "build": "gulp build"
   }
 }
