@@ -49,7 +49,7 @@ const wrap = async function(f) {
 
 const userToString = user => `<span style="color: ${user.color || 'white'}">${user.nick || 'anonymous'}</span>`
 
-const handleLine = (socket, user, ln, exit, cfg) => {
+const handleLine = (socket, user, ln, exit, cfg, log) => {
     if (ln.startsWith('/')) {
         switch (ln.split(' ')[0].substr(1).toLowerCase()) {
             case 'exit':
@@ -62,8 +62,13 @@ const handleLine = (socket, user, ln, exit, cfg) => {
                 $store.set('.config/trollbox/color', user.color = ln.split(' ').slice(1).join(' '))
                 break
             case 'img':
-                if (ln.split(' ')[1] == 'on') cfg.img = true
-                else cfg.img = false
+                if (ln.split(' ')[1] == 'on') {
+                    cfg.img = true
+                    log("Show images: ON")                    
+                } else { 
+                    cfg.img = false
+                    log("Show images: OFF")
+                }
                 break
             default:
                 socket.emit('message', ln)
@@ -82,7 +87,7 @@ const app =  cli => {
     cli.onexit = exit
     const socket = io(cli.arg.arguments[0] || '//www.windows93.net:8081')
     const currentUser = new User($store.get('.config/trollbox/nick'), $store.get('.config/trollbox/color'))
-    cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg)
+    cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg, cli.log)
     socket.on('user joined', user => {
         cli.log(`${userToString(user)} has entered teh trollbox`)
     })
