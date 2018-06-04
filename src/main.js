@@ -52,6 +52,14 @@ const userToString = user => `<span style="color: ${user.color || 'white'}">${us
 const handleLine = (socket, user, ln, exit, cfg, log) => {
     if (ln.startsWith('/')) {
         switch (ln.split(' ')[0].substr(1).toLowerCase()) {
+            case 'help':
+                cli.log(`Trollbox CLI help
+/help: this help screen
+/exit: leave trollbox CLI
+/nick &lt;nickname&gt;: set your nickname
+/color &lt;color&gt;: set your color
+/img &lt;(on|off)&gt;: turn image display on or off`)
+                break
             case 'exit':
                 exit()
                 break
