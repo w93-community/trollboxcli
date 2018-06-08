@@ -6,16 +6,20 @@ module.exports = function(f) {
     this.cli.onenter = l => false
     var cli = this.cli
     var lastLog = $log('')
+    let cleaned = false
     const cleanup = () => {
+        cleaned = true
         this.cli.prompt.innerHTML = originalPrompt
         this.cli.onenter = originalOnenter
         this.cli.ondestroy = originalOndestroy
     }
     return f({
         log: (...args) => {
-            var newLog = $log(...args)
-            lastLog.parentElement.insertBefore(newLog, lastLog.nextSibling)
-            lastLog = newLog
+            if (!cleaned) {
+                var newLog = $log(...args)
+                lastLog.parentElement.insertBefore(newLog, lastLog.nextSibling)
+                lastLog = newLog
+            }
         },
         set online(f) {
             cli.onenter = l => { f(l); return false }
