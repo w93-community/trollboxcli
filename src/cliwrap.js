@@ -33,7 +33,7 @@ module.exports = function (f) {
       return cli.ondestroy
     },
     set onexit (f) {
-      cli.ondestroy = () => f()
+      cli.ondestroy = () => { f() }
     },
     get prompt () {
       return cli.prompt.innerHTML

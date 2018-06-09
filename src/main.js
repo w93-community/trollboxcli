@@ -69,7 +69,7 @@ const app = cli => {
   cli.onexit = exit
   const socket = io(cli.arg.arguments[0] || '//www.windows93.net:8081')
   const currentUser = new User($store.get('.config/trollbox/nick'), $store.get('.config/trollbox/color'))
-  cli.online = ln => handleLine(socket, currentUser, ln, exit, cfg, cli.log)
+  cli.online = ln => { handleLine(socket, currentUser, ln, exit, cfg, cli.log) }
   socket.on('user joined', user => {
     cli.log(`${userToString(user)} has entered teh trollbox`)
   })
@@ -96,13 +96,13 @@ const app = cli => {
           logs[logsCtr] += betweenSpace + ' '
         }
       })
-      logs.forEach(e => cli.log(e))
+      logs.forEach(e => { cli.log(e) })
     }
   })
   autorun(() => { cli.prompt = `${userToString(currentUser)}&gt;&nbsp;` })
   autorun(() => { socket.emit('user joined', currentUser.nick, currentUser.color) })
 
-  return p.then(() => socket.close())
+  return p.then(() => { socket.close() })
 }
 
 le._apps.trollboxcli = {
