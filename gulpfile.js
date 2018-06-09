@@ -4,7 +4,7 @@ var buffer = require('vinyl-buffer')
 var browserify = require('browserify')
 var buble = require('gulp-buble')
 
-gulp.task('build', function() {
+gulp.task('build', function () {
   return browserify('./src/main.js')
     .bundle()
     .pipe(source('bundle.js'))

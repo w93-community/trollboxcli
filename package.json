@@ -11,10 +11,12 @@
     "browserify": "^16.2.2",
     "gulp": "^3.9.1",
     "gulp-buble": "^0.9.0",
+    "standard": "^11.0.1",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+    "test": "standard"
   }
 }
