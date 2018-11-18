@@ -40,5 +40,5 @@ module.exports = function (f) {
     },
     set prompt (p) { cli.prompt.innerHTML = p },
     arg: this.arg
-  }).then(cleanup).error(cleanup)
+  }).then(cleanup).catch(cleanup)
 }
